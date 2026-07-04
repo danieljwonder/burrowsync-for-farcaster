@@ -1,0 +1,8 @@
+# Excluded from the distributed/WordPress.org build.
+.git
+.gitignore
+.distignore
+.DS_Store
+tests
+README.md
+*.zip
