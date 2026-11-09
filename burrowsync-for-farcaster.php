@@ -92,6 +92,7 @@ final class BSync_FC_Plugin {
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
 
         add_action('init', array($this, 'init'));
+        add_action('admin_init', array($this, 'maybe_finish_setup'));
 
         // CPT registration runs late (priority 20) so that if burrowsync-for-nostr
         // is active and has already registered `note` (it does so at its
@@ -176,6 +177,19 @@ final class BSync_FC_Plugin {
         if (!BSync_FC_Settings::get_instance()->is_connected()) {
             update_option('bsync_fc_show_setup_notice', '1', false);
         }
+        update_option('bsync_fc_setup_version', BSYNC_FC_VERSION, false);
+    }
+
+    /**
+     * Run activation setup once per version if it never ran, e.g. when this
+     * plugin was activated while Farcaster for WP was still active and stood
+     * down. Migration and scheduling are both idempotent.
+     */
+    public function maybe_finish_setup() {
+        if (get_option('bsync_fc_setup_version') === BSYNC_FC_VERSION) {
+            return;
+        }
+        $this->activate();
     }
 
     /**
@@ -183,8 +197,9 @@ final class BSync_FC_Plugin {
      * names (fcwp_*). Installs that configured the plugin before the
      * BurrowSync rename keep their API key, signer, webhook secret, and
      * settings without re-running setup. The secrets blob is copied
-     * verbatim: encryption is keyed from AUTH_KEY/AUTH_SALT, which do not
-     * change with the plugin name. Old options are left in place (cheap,
+     * verbatim; it was encrypted under the old plugin's key context, which
+     * BSync_FC_Settings still accepts and upgrades on first read. Old
+     * options are left in place (cheap,
      * and harmless if the old plugin file is briefly still present);
      * uninstall.php removes both generations.
      */
@@ -229,4 +244,37 @@ function bsync_fc() {
     return BSync_FC_Plugin::get_instance();
 }
 
-bsync_fc();
+/**
+ * True while the pre-release "Farcaster for WP" plugin is active. Running
+ * both would import and cast everything twice, so this plugin stands down
+ * until it is deactivated. Matched by main-file name, since that plugin was
+ * installed under more than one folder name.
+ *
+ * @return bool
+ */
+function bsync_fc_legacy_plugin_active() {
+    if (class_exists('Farcaster_For_WP', false)) {
+        return true;
+    }
+    $active = (array) get_option('active_plugins', array());
+    if (is_multisite()) {
+        $active = array_merge($active, array_keys((array) get_site_option('active_sitewide_plugins', array())));
+    }
+    foreach ($active as $plugin) {
+        if (basename((string) $plugin) === 'farcaster-for-wp.php') {
+            return true;
+        }
+    }
+    return false;
+}
+
+if (bsync_fc_legacy_plugin_active()) {
+    add_action('admin_notices', function () {
+        if (!current_user_can('activate_plugins')) {
+            return;
+        }
+        echo '<div class="notice notice-warning"><p><strong>BurrowSync for Farcaster</strong> replaces Farcaster for WP. Deactivate Farcaster for WP to finish switching. Your API key, signer, webhook and settings carry over.</p></div>';
+    });
+} else {
+    bsync_fc();
+}

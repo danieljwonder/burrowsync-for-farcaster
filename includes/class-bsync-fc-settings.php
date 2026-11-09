@@ -29,6 +29,16 @@ class BSync_FC_Settings {
     const OPTION_SETTINGS = 'bsync_fc_settings';
     const OPTION_SECRETS  = 'bsync_fc_secrets';
 
+    /** Key-derivation context for secrets written by this plugin. */
+    const KEY_CONTEXT = 'burrowsync-for-farcaster';
+
+    /**
+     * Context used by the pre-release "Farcaster for WP" plugin. Its secrets
+     * blob is copied verbatim by the legacy-option migration, so it must
+     * still decrypt here; get_secret() re-encrypts it under KEY_CONTEXT.
+     */
+    const LEGACY_KEY_CONTEXT = 'farcaster-for-wp';
+
     /** @var BSync_FC_Settings|null */
     private static $instance = null;
 
@@ -206,7 +216,18 @@ class BSync_FC_Settings {
         if (!is_array($secrets) || empty($secrets[$name])) {
             return null;
         }
-        return $this->decrypt($secrets[$name]);
+        $plain = $this->decrypt($secrets[$name]);
+        if ($plain === null) {
+            $plain = $this->decrypt($secrets[$name], self::LEGACY_KEY_CONTEXT);
+            if ($plain !== null) {
+                try {
+                    $this->set_secret($name, $plain); // upgrade to the current key
+                } catch (Exception $e) {
+                    // Still readable via the legacy key; retry on next read.
+                }
+            }
+        }
+        return $plain;
     }
 
     /**
@@ -247,12 +268,12 @@ class BSync_FC_Settings {
      * @return string 32 raw bytes
      * @throws Exception
      */
-    private function derive_key() {
+    private function derive_key($context = self::KEY_CONTEXT) {
         if (!$this->can_encrypt()) {
             throw new Exception('Secret storage requires the PHP sodium extension and AUTH_KEY defined in wp-config.php.');
         }
-        $salt = defined('AUTH_SALT') ? AUTH_SALT : 'burrowsync-for-farcaster';
-        return sodium_crypto_generichash(AUTH_KEY . '|' . $salt . '|burrowsync-for-farcaster', '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
+        $salt = defined('AUTH_SALT') ? AUTH_SALT : $context;
+        return sodium_crypto_generichash(AUTH_KEY . '|' . $salt . '|' . $context, '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES);
     }
 
     /**
@@ -270,7 +291,7 @@ class BSync_FC_Settings {
      * @param string $stored base64(nonce || box)
      * @return string|null plaintext, or null if missing/undecryptable
      */
-    private function decrypt($stored) {
+    private function decrypt($stored, $context = self::KEY_CONTEXT) {
         if (!is_string($stored) || $stored === '') {
             return null;
         }
@@ -281,7 +302,7 @@ class BSync_FC_Settings {
         try {
             $nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
             $box = substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
-            $plain = sodium_crypto_secretbox_open($box, $nonce, $this->derive_key());
+            $plain = sodium_crypto_secretbox_open($box, $nonce, $this->derive_key($context));
             return ($plain === false) ? null : $plain;
         } catch (Exception $e) {
             return null;

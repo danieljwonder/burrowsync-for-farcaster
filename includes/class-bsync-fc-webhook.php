@@ -32,6 +32,7 @@ if (!defined('ABSPATH')) {
 class BSync_FC_Webhook {
 
     const REST_NAMESPACE = 'burrowsync-for-farcaster/v1';
+    const LEGACY_REST_NAMESPACE = 'farcaster-for-wp/v1';
     const REST_ROUTE     = '/webhook';
     const SIGNATURE_HEADER = 'X-Neynar-Signature';
 
@@ -63,13 +64,19 @@ class BSync_FC_Webhook {
     }
 
     public function register_routes() {
-        register_rest_route(self::REST_NAMESPACE, self::REST_ROUTE, array(
+        $args = array(
             'methods'  => 'POST',
             'callback' => array($this, 'handle_request'),
             // Public by design; authentication happens via the HMAC
             // signature check inside the callback.
             'permission_callback' => '__return_true',
-        ));
+        );
+        register_rest_route(self::REST_NAMESPACE, self::REST_ROUTE, $args);
+
+        // Webhooks created by the pre-release "Farcaster for WP" plugin point
+        // at its namespace. Keep answering there so existing Neynar webhooks
+        // keep delivering after the switch, with the same signature check.
+        register_rest_route(self::LEGACY_REST_NAMESPACE, self::REST_ROUTE, $args);
     }
 
     /**
