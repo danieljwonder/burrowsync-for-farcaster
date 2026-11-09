@@ -588,8 +588,8 @@ class BSync_FC_Admin {
                             <th scope="row"><?php esc_html_e('Uninstall', 'burrowsync-for-farcaster'); ?></th>
                             <td>
                                 <label><input type="checkbox" name="bsync_fc_purge_on_uninstall" <?php checked($s->get('purge_on_uninstall')); ?> />
-                                    <?php esc_html_e('Full purge on uninstall: also delete Farcaster sync meta from posts (posts themselves are never deleted)', 'burrowsync-for-farcaster'); ?></label>
-                                <p class="description"><?php esc_html_e('Default off: uninstalling removes settings and secrets but leaves post content and origin markers intact.', 'burrowsync-for-farcaster'); ?></p>
+                                    <?php esc_html_e('Full purge on uninstall: delete settings, credentials and Farcaster sync meta from posts (posts themselves are never deleted)', 'burrowsync-for-farcaster'); ?></label>
+                                <p class="description"><?php esc_html_e('Default off: deleting the plugin keeps your settings, credentials, post content and origin markers, so reinstalling picks up where you left off.', 'burrowsync-for-farcaster'); ?></p>
                             </td>
                         </tr>
                     </table>

@@ -89,7 +89,7 @@ No. Notes created from your casts are stamped as Farcaster-origin before WordPre
 
 = Does deactivating the plugin lose my connection? =
 
-No. Deactivation only unschedules background tasks. The signer, API key, and all sync metadata survive deactivate/reactivate. Deleting the plugin removes its settings and secrets; post content is never deleted, and sync metadata on posts is only removed if you opted into a full purge first.
+No. Deactivation only unschedules background tasks. The signer, API key, and all sync metadata survive deactivate/reactivate. Deleting the plugin keeps them too, unless you opted into a full purge first, which removes settings, secrets and sync metadata on posts. Post content is never deleted.
 
 = My site is not publicly reachable — can I still sync? =
 
@@ -99,5 +99,6 @@ Outbound (WP → Farcaster) works anywhere with outbound HTTPS. For inbound, ena
 
 = 0.9.0 =
 * First public beta. Versioning stays below 1.0 while the BurrowSync family is in testing
+* Deleting the plugin keeps settings and credentials unless Full purge on uninstall is ticked
 
 * Initial release: webhook-driven inbound sync, queued outbound publishing with retries, Sign in with Neynar signer connection, encrypted secrets, BurrowSync for Nostr interop, polling fallback.
