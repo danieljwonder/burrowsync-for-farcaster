@@ -50,10 +50,10 @@ check('control: native WP note IS queued', wp_next_scheduled(BSync_FC_Publisher:
 
 $nostr_id = wp_insert_post(array(
     'post_title'  => 'Nostr-origin note',
-    'post_content'=> 'Mirrored into WP by nostr-for-wp.',
+    'post_content'=> 'Mirrored into WP by burrowsync-for-nostr.',
     'post_status' => 'publish',
     'post_type'   => 'note',
-    'meta_input'  => array('_nostr_origin' => '1'), // as nostr-for-wp stamps it
+    'meta_input'  => array('_nostr_origin' => '1'), // as burrowsync-for-nostr stamps it
 ));
 check('rule 3: Nostr-origin note IS queued for Farcaster', wp_next_scheduled(BSync_FC_Publisher::CRON_HOOK, array($nostr_id)) !== false);
 

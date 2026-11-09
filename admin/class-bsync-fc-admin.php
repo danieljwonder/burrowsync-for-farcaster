@@ -567,8 +567,8 @@ class BSync_FC_Admin {
                             <th scope="row"><?php esc_html_e('Nostr interop', 'burrowsync-for-farcaster'); ?></th>
                             <td>
                                 <label><input type="checkbox" name="bsync_fc_allow_nostr_bridge" <?php checked($s->get('allow_nostr_bridge')); ?> />
-                                    <?php esc_html_e('Allow Farcaster-origin notes to publish to Nostr (requires the Nostr for WP plugin)', 'burrowsync-for-farcaster'); ?></label>
-                                <p class="description"><?php esc_html_e('Off (default): notes imported from Farcaster are marked so Nostr for WP will not bridge them onward. Has no effect when that plugin is not installed.', 'burrowsync-for-farcaster'); ?></p>
+                                    <?php esc_html_e('Allow Farcaster-origin notes to publish to Nostr (requires the BurrowSync for Nostr plugin)', 'burrowsync-for-farcaster'); ?></label>
+                                <p class="description"><?php esc_html_e('Off (default): notes imported from Farcaster are marked so BurrowSync for Nostr will not bridge them onward. Has no effect when that plugin is not installed.', 'burrowsync-for-farcaster'); ?></p>
                             </td>
                         </tr>
                         <tr>

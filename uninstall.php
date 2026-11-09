@@ -48,7 +48,7 @@ $wpdb->query("DELETE FROM {$wpdb->options} WHERE option_name LIKE 'bsync\\_fc\\_
 if ($bsync_fc_full_purge) {
     // Explicitly requested full purge: strip this plugin's post meta.
     // Posts themselves are NEVER deleted. `_nostr_origin` is left alone —
-    // it may also have been written by the companion nostr-for-wp plugin
+    // it may also have been written by the companion burrowsync-for-nostr plugin
     // and removing it could cause that plugin to re-publish old posts.
     $bsync_fc_meta_keys = array(
         '_farcaster_origin',

@@ -4,13 +4,15 @@ Tags: farcaster, neynar, sync, social, crossposting
 Requires at least: 5.9
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Two-way sync between WordPress notes and Farcaster casts via the Neynar API. Casts become notes; published notes become casts.
 
 == Description ==
+
+**Beta.** Pre-1.0. It runs in production, but test it on a staging site before relying on it.
 
 Your WordPress site is the burrow — the home you own, underground and safe. BurrowSync digs tunnels from it to the surface networks. This plugin is the Farcaster tunnel; a companion connects Nostr, and every burrow connects to the warren.
 
@@ -27,15 +29,15 @@ The plugin targets a single-user personal site: one Farcaster account (FID) per 
 | --- | --- | --- |
 | Cast by your FID (top-level) | Farcaster → WP | Imported as a note, marked as Farcaster-origin |
 | Note written in WordPress | WP → Farcaster | Published as a cast |
-| Note imported from Nostr (Nostr for WP) | WP → Farcaster | Published as a cast (mirrored content flows on) |
+| Note imported from Nostr (BurrowSync for Nostr) | WP → Farcaster | Published as a cast (mirrored content flows on) |
 | Note imported from Farcaster | WP → Farcaster | **Never** published back (anti-echo guard) |
 | Replies / recasts | Farcaster → WP | Excluded by default; settings toggles available |
 
 The plugin never creates duplicates: your own outbound casts are recognised when the webhook echoes them back, and redelivered webhooks are deduplicated by cast hash.
 
-= Interop with Nostr for WP =
+= Interop with BurrowSync for Nostr =
 
-If the companion Nostr for WP plugin is active, both plugins share the same `note` post type. Notes imported from Nostr are also casted to Farcaster. Whether notes imported from Farcaster should bridge onward to Nostr is your choice via a setting (default: off). BurrowSync for Farcaster works fully without the companion plugin.
+If the companion BurrowSync for Nostr plugin is active, both plugins share the same `note` post type. Notes imported from Nostr are also casted to Farcaster. Whether notes imported from Farcaster should bridge onward to Nostr is your choice via a setting (default: off). BurrowSync for Farcaster works fully without the companion plugin.
 
 = What you need =
 
@@ -95,5 +97,7 @@ Outbound (WP → Farcaster) works anywhere with outbound HTTPS. For inbound, ena
 
 == Changelog ==
 
-= 1.0.0 =
-* Initial release: webhook-driven inbound sync, queued outbound publishing with retries, Sign in with Neynar signer connection, encrypted secrets, Nostr for WP interop, polling fallback.
+= 0.9.0 =
+* First public beta. Versioning stays below 1.0 while the BurrowSync family is in testing
+
+* Initial release: webhook-driven inbound sync, queued outbound publishing with retries, Sign in with Neynar signer connection, encrypted secrets, BurrowSync for Nostr interop, polling fallback.

@@ -1,15 +1,17 @@
 # BurrowSync for Farcaster
 
+> **Beta.** Pre-1.0. It runs in production, but test it on a staging site before relying on it.
+
 Two-way sync between a WordPress site and a Farcaster account, using [Neynar](https://neynar.com) for both reading (webhooks) and writing (managed signers).
 
-> **The BurrowSync idea:** your WordPress site is the burrow — the home you own. BurrowSync digs tunnels from it to the surface networks: this plugin is the Farcaster tunnel, [nostr-for-wp](https://github.com/danieljwonder/nostr-for-wp) connects Nostr, and every burrow connects to the warren. Suite home: [burrowsync.com](https://burrowsync.com).
+> **The BurrowSync idea:** your WordPress site is the home base, connected to every network you use. This plugin connects Farcaster, [BurrowSync for X](https://github.com/danieljwonder/burrowsync-for-x) connects X, and [BurrowSync for Nostr](https://github.com/danieljwonder/burrowsync-for-nostr) connects Nostr. Suite home: [burrowsync.com](https://burrowsync.com).
 
 - **Inbound**: your top-level casts become WordPress `note` posts — original timestamp, channel, images, canonical cast link.
 - **Outbound**: publishing a `note` casts it from your account — first image as an embed, byte-safe truncation with permalink for long notes.
 - **Dependency-free**: plain REST over the WordPress HTTP API. No Composer packages, no Node SDK.
 - Single-user model: one configured FID per install (the site owner's), entered at setup. Nothing user-specific is hardcoded.
 
-Interoperates with (but does not require) the companion plugin [nostr-for-wp](https://github.com/danieljwonder/nostr-for-wp).
+Interoperates with (but does not require) the companion plugin [BurrowSync for Nostr](https://github.com/danieljwonder/burrowsync-for-nostr).
 
 ## Content-flow rules
 
@@ -17,7 +19,7 @@ Interoperates with (but does not require) the companion plugin [nostr-for-wp](ht
 |---|---------|-----------|-----------|
 | 1 | Cast by the configured FID (top-level) | Farcaster → WP | Imported as a `note`, stamped `_farcaster_origin` |
 | 2 | WP-native note | WP → Farcaster | Published as a cast |
-| 3 | Nostr-origin note (`_nostr_origin`, created by nostr-for-wp) | WP → Farcaster | Published as a cast — mirrored content deliberately flows on |
+| 3 | Nostr-origin note (`_nostr_origin`, created by burrowsync-for-nostr) | WP → Farcaster | Published as a cast — mirrored content deliberately flows on |
 | 4 | Farcaster-origin note (`_farcaster_origin`) | WP → Farcaster | **Never** published back (anti-echo guard) |
 | 5 | Anything | WP → Nostr | Never — this plugin does not touch Nostr |
 
@@ -27,11 +29,11 @@ WordPress core's `wp_insert_post()` writes `meta_input`, **then** fires `transit
 
 Self-echo is the second trap: when this plugin casts a note, Neynar's webhook fires `cast.created` for that very cast. The publisher stores the returned hash as `_farcaster_cast_hash`; the inbound handler looks up every incoming hash against stored values (single indexed query) and skips matches. The same lookup makes webhook redelivery idempotent.
 
-### Interop with nostr-for-wp
+### Interop with burrowsync-for-nostr
 
 - Both plugins share the `note` CPT. This plugin checks `post_type_exists('note')` at `init` priority 20 and only registers the CPT when absent (identical slug/shape).
-- Setting **“Allow Farcaster-origin notes to publish to Nostr”** (default **off**): when off, imported notes are also stamped `_nostr_origin` — a deliberate reuse of the companion plugin's suppression convention so it will not bridge them onward. When on, no extra stamp, and nostr-for-wp (if active) treats them as bridgeable.
-- Interop is meta-conventions only. This plugin never calls nostr-for-wp classes, functions, or hooks, and works fully without it.
+- Setting **“Allow Farcaster-origin notes to publish to Nostr”** (default **off**): when off, imported notes are also stamped `_nostr_origin` — a deliberate reuse of the companion plugin's suppression convention so it will not bridge them onward. When on, no extra stamp, and burrowsync-for-nostr (if active) treats them as bridgeable.
+- Interop is meta-conventions only. This plugin never calls burrowsync-for-nostr classes, functions, or hooks, and works fully without it.
 
 ## Setup
 

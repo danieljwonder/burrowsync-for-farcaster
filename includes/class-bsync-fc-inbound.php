@@ -32,12 +32,12 @@
  *
  * INTEROP (`_nostr_origin` on Farcaster-origin notes):
  *
- * If nostr-for-wp is active, its outbound publisher suppresses anything
+ * If burrowsync-for-nostr is active, its outbound publisher suppresses anything
  * carrying `_nostr_origin`. When the "Allow Farcaster-origin notes to
  * publish to Nostr" setting is OFF (default), we deliberately reuse that
  * suppression convention by stamping `_nostr_origin` on the notes we
  * create — same meta_input timing rule. This is a documented convention
- * borrow, not an API call; nostr-for-wp code is never invoked and its
+ * borrow, not an API call; burrowsync-for-nostr code is never invoked and its
  * absence changes nothing.
  */
 
@@ -128,11 +128,11 @@ class BSync_FC_Inbound {
         }
 
         if (!$this->settings->get('allow_nostr_bridge')) {
-            // Deliberate reuse of nostr-for-wp's suppression convention:
+            // Deliberate reuse of burrowsync-for-nostr's suppression convention:
             // posts carrying _nostr_origin are never published to Nostr by
             // that plugin. Stamped here (via meta_input, same timing rule)
             // so Farcaster-origin notes stay on Farcaster unless the user
-            // opts in. Harmless when nostr-for-wp is not installed.
+            // opts in. Harmless when burrowsync-for-nostr is not installed.
             $meta_input['_nostr_origin'] = '1';
         }
 

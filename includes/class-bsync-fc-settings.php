@@ -75,7 +75,7 @@ class BSync_FC_Settings {
             'default_channel'    => '',      // blank = home feed
 
             // Interop: when false (default) Farcaster-origin notes are also
-            // stamped _nostr_origin so nostr-for-wp will not bridge them.
+            // stamped _nostr_origin so burrowsync-for-nostr will not bridge them.
             'allow_nostr_bridge' => false,
 
             // Resilience.

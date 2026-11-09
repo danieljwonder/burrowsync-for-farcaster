@@ -2,8 +2,8 @@
 /**
  * Plugin Name: BurrowSync for Farcaster – Two-Way WordPress Sync
  * Plugin URI: https://burrowsync.com
- * Description: Two-way synchronization between WordPress notes and Farcaster casts via the Neynar API. Inbound casts become "note" posts; published notes become casts. Interoperates with (but does not require) the Nostr for WP plugin.
- * Version: 1.0.0
+ * Description: Two-way synchronization between WordPress notes and Farcaster casts via the Neynar API. Inbound casts become "note" posts; published notes become casts. Interoperates with (but does not require) the BurrowSync for Nostr plugin.
+ * Version: 0.9.0
  * Requires at least: 5.9
  * Requires PHP: 7.4
  * Author: Daniel Wonder
@@ -28,7 +28,7 @@
  *  1. Farcaster-native casts (top-level, by the connected FID) sync INTO
  *     WordPress as `note` posts, stamped `_farcaster_origin`.
  *  2. WP-native `note` posts sync OUT to Farcaster as casts.
- *  3. Nostr-origin notes (created by the companion nostr-for-wp plugin,
+ *  3. Nostr-origin notes (created by the companion burrowsync-for-nostr plugin,
  *     carrying `_nostr_origin`) ALSO sync out to Farcaster. Deliberate:
  *     content mirrored into WP via Nostr should reach Farcaster too.
  *  4. Farcaster-origin posts are NEVER published back to Farcaster
@@ -36,7 +36,7 @@
  *     wp_insert_post()'s meta_input so it exists BEFORE the
  *     transition_post_status hook fires — see BSync_FC_Inbound.
  *  5. This plugin never reads from or writes to Nostr. Interop with
- *     nostr-for-wp is purely via post meta conventions (`_nostr_origin`),
+ *     burrowsync-for-nostr is purely via post meta conventions (`_nostr_origin`),
  *     never by calling its code.
  */
 
@@ -44,7 +44,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('BSYNC_FC_VERSION', '1.0.0');
+define('BSYNC_FC_VERSION', '0.9.0');
 define('BSYNC_FC_PLUGIN_FILE', __FILE__);
 define('BSYNC_FC_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('BSYNC_FC_PLUGIN_URL', plugin_dir_url(__FILE__));
@@ -93,7 +93,7 @@ final class BSync_FC_Plugin {
 
         add_action('init', array($this, 'init'));
 
-        // CPT registration runs late (priority 20) so that if nostr-for-wp
+        // CPT registration runs late (priority 20) so that if burrowsync-for-nostr
         // is active and has already registered `note` (it does so at its
         // default init priority), we detect it and do NOT double-register.
         add_action('init', array($this, 'maybe_register_post_type'), 20);
@@ -118,13 +118,13 @@ final class BSync_FC_Plugin {
 
     /**
      * Register the `note` custom post type — but only if no other plugin
-     * (in practice: nostr-for-wp) has registered it already. The slug and
-     * shape intentionally mirror nostr-for-wp's registration so the two
+     * (in practice: burrowsync-for-nostr) has registered it already. The slug and
+     * shape intentionally mirror burrowsync-for-nostr's registration so the two
      * plugins share one post type when both are active.
      */
     public function maybe_register_post_type() {
         if (post_type_exists('note')) {
-            return; // nostr-for-wp (or another plugin) owns the registration.
+            return; // burrowsync-for-nostr (or another plugin) owns the registration.
         }
 
         register_post_type('note', array(

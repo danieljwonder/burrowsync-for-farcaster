@@ -12,7 +12,7 @@
  * inbound mapper stamps that meta via wp_insert_post()'s meta_input, so
  * it is guaranteed to exist by the time this hook fires (see
  * BSync_FC_Inbound's docblock for why the timing matters). Posts carrying
- * `_nostr_origin` (created by the companion nostr-for-wp plugin) are
+ * `_nostr_origin` (created by the companion burrowsync-for-nostr plugin) are
  * deliberately NOT filtered: content mirrored into WP via Nostr should
  * reach Farcaster (content-flow rule 3).
  *
