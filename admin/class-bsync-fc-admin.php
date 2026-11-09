@@ -97,6 +97,12 @@ class BSync_FC_Admin {
         if (!get_option('bsync_fc_show_setup_notice') || $on_settings) {
             return;
         }
+        if ($this->settings->is_connected()) {
+            // Stale first-run flag, e.g. set before migrated credentials
+            // could be decrypted. Clear it rather than nag a working site.
+            delete_option('bsync_fc_show_setup_notice');
+            return;
+        }
         printf(
             '<div class="notice notice-info is-dismissible"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
             esc_html__('BurrowSync for Farcaster is almost ready.', 'burrowsync-for-farcaster'),
